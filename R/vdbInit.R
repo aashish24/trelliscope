@@ -31,10 +31,12 @@ vdbInit <- function(path=NULL, name="myVDB", autoYes=FALSE) {
       } else {
          ans <- readline(paste("The path ", path, " does not exist.  Should it be created? (y = yes) ", sep=""))
       }
-   	if(!tolower(substr(ans, 1, 1)) == "y")
-   	   return(FALSE)
-		if(!dir.create(path))
-			stop("Could not create directory.\n")
+      if(!tolower(substr(ans, 1, 1)) == "y")
+         return(FALSE)
+      if(!dir.create(path, recursive = TRUE)) {
+         # if the creation of the dir failed or already exists
+         stop("Could not create directory.\n")
+      }
    }
 
    # now move files over
