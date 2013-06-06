@@ -1,6 +1,11 @@
 
 body {
    padding-top: 50px; /* 60px to make the container go all the way to the bottom of the topbar */
+   cursor: default;
+}
+
+.cursor-default {
+  cursor: default;
 }
 
 div.cogTable_wrapper {
@@ -152,9 +157,9 @@ table.cogTable th {
 /*table.cogTable thead .sorting_desc_disabled { background: url('images/sort_desc_disabled.png') no-repeat center right; }*/
 
 table.cogTable thead {
-   -webkit-user-select: none; /* Chrome/Safari */        
+   -webkit-user-select: none; /* Chrome/Safari */
    -moz-user-select: none; /* Firefox */
-   -ms-user-select: none; /* IE10+ */   
+   -ms-user-select: none; /* IE10+ */
 }
 
 table.cogTable th:active {
@@ -229,8 +234,8 @@ select.btn-mini + .caret {
 }
 
 .relatedInfo {
-   position:relative; 
-   top:-20px; 
+   position:relative;
+   top:-20px;
    background-color:lightgray;
    opacity:0.4;
    filter:alpha(opacity=40); /* For IE8 and earlier */

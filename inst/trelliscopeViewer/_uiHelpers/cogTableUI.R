@@ -20,15 +20,15 @@ cogModal <- function() {
 cogTableOutput <- function(data, width=500, ...) {
    # width must be at least 450
 
-   div(id="cogTable_wrapper", 
-      class="cogTable_wrapper form-inline", 
+   div(id="cogTable_wrapper",
+      class="cogTable_wrapper form-inline",
       role="grid", style=paste("width: ", width, "px;", sep=""),
-      div(class="row-fluid", 
+      div(class="row-fluid",
          style=paste("width: 100%; padding-bottom: 5px", sep=""),
          cogTableLength(),
          cogTableFilter(),
-         div(id="cogTable_processing", 
-            class="cogTable_processing", 
+         div(id="cogTable_processing",
+            class="cogTable_processing",
             style="visibility: hidden;", "Processing...")
       ),
       cogTableTable(width),
@@ -56,13 +56,14 @@ cogTableTable <- function(width) {
    #       div(class="cogTableWrap3",
             div(class="cogTableWrap", #, style=paste("max-width: ", width, "px;", sep=""),
                tagList(
-                  singleton(tags$head(tags$link(href = "css/trelliscopeViewer.css", rel="stylesheet"))),
+                  # singleton(tags$head(tags$link(href = "css/trelliscopeViewer.css", rel="stylesheet"))),
+                  singleton(tags$head(tags$link(href = "css/viewer_ss.css", rel="stylesheet"))),
                   singleton(tags$head(tags$script(src = "js/table.js"))),
                   tags$table(
-                     cellpadding='0', 
-                     cellspacing='0', 
-                     border='0', 
-                     class='data table table-condensed table-striped table-bordered cogTable nowrap', 
+                     cellpadding='0',
+                     cellspacing='0',
+                     border='0',
+                     class='data table table-condensed table-striped table-bordered cogTable nowrap',
                      id="cogTable",
                      cogTableHeadOutput("cogTableHead"),
                      cogTableFootOutput("cogTableFoot"),

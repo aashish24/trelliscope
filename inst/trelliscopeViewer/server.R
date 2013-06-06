@@ -642,6 +642,7 @@ shinyServer(function(input, output) {
    })
    outputOptions(output, 'panelLayoutCogInfo', suspendWhenHidden=FALSE)
 
+   cat_once <- once(cat)
    output$panelLayoutPlots <- renderData({
       cogDF <- curPageCogDF()
 
@@ -657,10 +658,12 @@ shinyServer(function(input, output) {
                cdo$plotFn <- plotFn
             }
          }
-         # a <- system.time({
+
+         cat_once("user, system, R, cum. user child, cum. system child\n")
+         capture_and_print_sys_time({
          res <- getPNGs(cogDF, cdo, localData, hdfsData, vdbPrefix, conn)
-         # })
-         # cat(a, "\n")
+         })
+
          if(length(res) < totPanels)
          res <- c(res, rep("", totPanels - length(res)))
          names(res) <- paste("plotTable_panel_", seq_along(res), sep="")
