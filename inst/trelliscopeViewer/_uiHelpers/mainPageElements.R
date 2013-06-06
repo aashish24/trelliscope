@@ -4,6 +4,7 @@ logMsg <- function(..., verbose=TRUE) {
       message(paste(c("* ", text), sep=""))
 }
 
+# creates generic page that contains the bootstrap imports
 viewerBootstrapPage <- function (...) {
    importBootstrap <- function(min = TRUE, responsive = TRUE) {
       ext <- function(ext) {
@@ -23,16 +24,22 @@ viewerBootstrapPage <- function (...) {
 }
 
 viewerPage <- function (preHeader, headerPanel, mainPanel) {
-    viewerBootstrapPage(preHeader, div(class = "container-fluid", style="padding-left:8px; padding-right:8px", div(class = "row-fluid", 
-        headerPanel), div(class = "row-fluid", 
-        mainPanel)))
+    viewerBootstrapPage(
+      preHeader,
+      div(
+         class = "container-fluid",
+         style = "padding-left:8px; padding-right:8px",
+         div(class = "row-fluid", headerPanel),
+         div(class = "row-fluid", mainPanel)
+      )
+   )
 }
 
 viewerHeaderPanel <- function() {
-   div(class='navbar navbar-fixed-top',
-   div(class='navbar-inner',
-   div(class='container-fluid',
-      div(id='displayNameHeader', class='span5 shiny-html-output'),
+   div(class = 'navbar navbar-fixed-top',
+   div(class = 'navbar-inner',
+   div(class = 'container-fluid',
+      div(id = 'displayNameHeader', class='span5 shiny-html-output'),
       HTML("<div class='span1'>
             <ul class='nav'>
                <li><a data-toggle='modal' href='#aboutModal' class='active'>About</a></li>
@@ -41,7 +48,7 @@ viewerHeaderPanel <- function() {
       ),
       div(class='span3', id='navbuttons',
          div(class='btn-group no_selection',
-            HTML("<a class='btn' id='btnBeg'>&laquo;</a>               
+            HTML("<a class='btn' id='btnBeg'>&laquo;</a>
                <a class='btn' id='btnPrev'>&larr;</a>"
             ),
             tags$a(class='btn', id='btnCurrentPage', htmlOutput("currentPageText")),
@@ -80,7 +87,7 @@ tdSelectString <- function(selector) {
          isMouseDown = true;
          if(!$(this).hasClass('not-numeric')) {
             $(this).toggleClass('highlighted');
-            isHighlighted = $(this).hasClass('highlighted');         
+            isHighlighted = $(this).hasClass('highlighted');
          } else {
             // alert('hi');
          }
@@ -120,7 +127,7 @@ hiddenDimInputs <- function() {
 renderData <- function(expr, env=parent.frame(), quoted=FALSE) {
    # Convert the expression + environment into a function
    func <- exprToFunction(expr, env, quoted)
-   
+
    function() {
       val <- func()
       val
@@ -130,7 +137,7 @@ renderData <- function(expr, env=parent.frame(), quoted=FALSE) {
 # gutted from renderPlot - used to build my own list of pngs to send in bulk
 myRenderPlot <- function(expr, width, height, env = parent.frame(), quoted = FALSE, class="") {
    func <- exprToFunction(expr, env, quoted)
-   
+
    png.file <- tempfile(fileext = ".png")
 
    if (width <= 0 || height <= 0) return(NULL)
