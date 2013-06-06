@@ -15,10 +15,10 @@ variablePlotSelectModal <- function() {
       ),
       div(class="modal-body",
          tabsetPanel(
-            tabPanel("Layout", 
+            tabPanel("Layout",
                tags$h4("Panel Layout", style="display:inline; line-height:25px"),
-               tags$a(id='panelLayoutTipPopover', rel='popover', 
-                  title='Panel Layout', 
+               tags$a(id='panelLayoutTipPopover', rel='popover',
+                  title='Panel Layout',
                   'data-content'="<p>Choose either the approximate number of panels per screen you would like to view or specify number of rows and columns.  If you select panels per screen, the number of rows and columns will be chosen based on the aspect ratio of the panels.</p>",
                   tags$i(class='icon-info-sign')
                ),
@@ -40,40 +40,40 @@ variablePlotSelectModal <- function() {
                      tags$input(id="panelCols", type="number", value=1, class="input-small")
                   ))
                )
-            ), 
-            tabPanel("Vars", 
-               tags$h4("Display variables under panels", style="display:inline; line-height:25px"), 
-               tags$a(id='varPanelTipPopover', rel='popover', 
-                  title='Update Variable Visibility', 
+            ),
+            tabPanel("Vars",
+               tags$h4("Display variables under panels", style="display:inline; line-height:25px"),
+               tags$a(id='varPanelTipPopover', rel='popover',
+                  title='Update Variable Visibility',
                   'data-content'="<p>Here you can choose which variables should be visible under each panel.  Click and drag on the 'Show' column to highlight which variables to show.</p>",
                   tags$i(class='icon-info-sign')
-               ), 
+               ),
                tags$hr(),
                htmlOutput("variablePlotSelectInput")
-            ), 
-            tabPanel("plotFn", 
-            tags$h4("Update plot function", style="display:inline; line-height:25px"), 
-            tags$a(id='plotFnUpdateTipPopover', rel='popover', 
-               title='Update plotFn', 
-               'data-content'="<p>Here you can update the plot function to be applied to each subset - only works with storage method of 'localData'.  Please be careful here!", 
+            ),
+            tabPanel("plotFn",
+            tags$h4("Update plot function", style="display:inline; line-height:25px"),
+            tags$a(id='plotFnUpdateTipPopover', rel='popover',
+               title='Update plotFn',
+               'data-content'="<p>Here you can update the plot function to be applied to each subset - only works with storage method of 'localData'.  Please be careful here!",
                tags$i(class='icon-info-sign')
-            ), 
-            div(id="editorWrapper", 
-               class="shiny-plotFn-output", 
+            ),
+            div(id="editorWrapper",
+               class="shiny-plotFn-output",
                div(
-                  id="editor", 
+                  id="editor",
                   class="shiny-plotFn-output"
-               ), 
+               ),
                div(
-                  tags$textarea(id="plotFnInput"), 
+                  tags$textarea(id="plotFnInput"),
                   style="display:none"
-               ), 
+               ),
                HTML("<script src='' type='text/javascript' charset='utf-8'></script>
          <script>
             var editor = ace.edit('editor');
-            editor.setTheme('ace/theme/tomorrow'); 
+            editor.setTheme('ace/theme/tomorrow');
             editor.getSession().setTabSize(3);
-            editor.getSession().setUseSoftTabs(true);                  
+            editor.getSession().setUseSoftTabs(true);
             editor.getSession().setMode('ace/mode/r');
          </script>")
                )
@@ -104,7 +104,7 @@ variableCogSelectModal <- function() {
          htmlOutput("variableCogSelectInput")
       ),
       div(class="modal-footer",
-         tags$p(span(class="label label-info", "Note:"), " clicking 'Update' will reset all other filters.    ", 
+         tags$p(span(class="label label-info", "Note:"), " clicking 'Update' will reset all other filters.    ",
             tags$a(class="btn", "data-dismiss"="modal", "Close"),
             tags$a(class="btn btn-primary", "data-dismiss"="modal", id="variableCogSelectBtn", "Update")
          )
@@ -119,14 +119,14 @@ makeVariableSelectTable <- function(vars, desc, type) {
    c2 <- paste("<td>", desc, "</td>", sep="")
 
    if(type=="Cog") {
-      c3 <- paste("<td class='selectableCogVar highlighted' name='", vars, "'></td>", sep="")      
+      c3 <- paste("<td class='selectableCogVar highlighted' name='", vars, "'></td>", sep="")
    } else {
       c3 <- paste("<td class='selectablePlotVar' name='", vars, "'></td>", sep="")
       c3[1] <- "<td class='selectablePlotVar highlighted' name='panelKey'></td>"
    }
-   
+
    header <- paste("<th>", c("Variable", "Description", "Show"), "</th>", sep="", collapse="")
-   
+
    HTML(paste("<table id='variable", type, "SelectTable' class='table table-condensed table-bordered'><thead><tr>", header, "</tr></thead><tbody>",
    paste("<tr>",
       apply(cbind(c1, c2, c3), 1, function(x) paste(x, collapse="")),

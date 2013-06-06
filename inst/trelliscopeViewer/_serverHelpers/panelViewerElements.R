@@ -4,7 +4,7 @@ encodePNG <- function(plotLoc) {
    bytes <- file.info(plotLoc)$size
    # b64 <- base64encode(readBin(plotLoc, "raw", n = bytes))
    b64 <- base64enc:::base64encode(readBin(plotLoc, "raw", n = bytes))
-   paste("data:image/png;base64,", b64, sep = "")   
+   paste("data:image/png;base64,", b64, sep = "")
 }
 
 getPNGs <- function(cogDF, cdo, localData, hdfsData, vdbPrefix, conn=NULL) {
@@ -15,7 +15,7 @@ getPNGs <- function(cogDF, cdo, localData, hdfsData, vdbPrefix, conn=NULL) {
       } else {
          cogDF$subDir <- ""
       }
-      
+
       ff <- file.path(vdbPrefix, "displays", cdo$group, cdo$name, "png", cogDF$subDir, paste(cogDF$panelKey, ".png", sep=""))
       pngs <- sapply(ff, encodePNG) # pngs <- ff
    } else if(cdo$storage=="hdfs") {
@@ -44,16 +44,16 @@ getPNGs <- function(cogDF, cdo, localData, hdfsData, vdbPrefix, conn=NULL) {
 }
 
 plotTabSkeleton <- function(nRow, nCol, relList, cdo) {
-   
+
    # innerInnerTables
-   
+
    if(!is.null(relList)) {
       # do some aspect ratio calculations...
       nDisp <- length(relList) + 1
       aspects <- c(cdo$plotDim$aspect, sapply(relList, function(x) x$plotDim$aspect))
       innerNcol <- ceiling(sqrt(nDisp))
       innerNrow <- ceiling(nDisp / innerNcol)
-      
+
       groups <- sapply(relList, function(x) x$group)
       names <- sapply(relList, function(x) x$name)
       # browser()
@@ -63,9 +63,9 @@ plotTabSkeleton <- function(nRow, nCol, relList, cdo) {
       tmp <- expand.grid(panel=seq_len(nRow*nCol), rel=seq_len(nDisp - 1))
       tmp$group <- rep(groups, each=nRow*nCol)
       tmp$name <- rep(names, each=nRow*nCol)
-      
+
       inner[,-1] <- paste("<div id='plotTable_panel_", tmp$panel, "_rel_", tmp$rel, "' class='panelWrap'><span class='relatedInfo'>", tmp$group, " / ", tmp$name, "</span></div>", sep="")
-      
+
       # pngs[-1] <- paste("<div><img src='", pngs[-1], "' class='png_img' alt='not loaded'/><span class='relatedInfo'>", paste(groups, names, sep=" / "), "</span></div>", sep="")
 
       innerInner <- apply(inner, 1, function(x) {
@@ -86,7 +86,7 @@ plotTabSkeleton <- function(nRow, nCol, relList, cdo) {
    } else {
       innerInner <- paste("<div id='plotTable_panel_", seq_len(nRow*nCol), "'></div>", sep="")
    }
-   
+
    innerTables <- matrix(
       paste("
          <table class='table-condensed table-bordered'>
@@ -98,16 +98,16 @@ plotTabSkeleton <- function(nRow, nCol, relList, cdo) {
          </tr>
          <tr>
          <td>
-         <div id='plotTableCog_panel_", seq_len(nRow*nCol), "'></div>         
+         <div id='plotTableCog_panel_", seq_len(nRow*nCol), "'></div>
          </td>
          </tr>
          </tbody>
-         </table>", 
+         </table>",
          sep=""
       ),
       nrow=nRow, ncol=nCol, byrow=TRUE
    )
-   
+
    outerTable <- paste("
 <table border='0' cellpadding='0' cellspacing='0' align='center' id='plotTable' valign='center'>
 <tbody>",
@@ -125,11 +125,11 @@ plotTabSkeleton <- function(nRow, nCol, relList, cdo) {
 # getPlotString <- function(cogDF, plotInfo, nRow, nCol, plotWidth, plotHeight, storage) {
 #    pngs <- getPNGs(cogDF, plotInfo, storage, vdbPrefix)
 #    n <- cogNrow(cogDF))
-# 
+#
 #    extra <- nRow*nCol - n
 #    if(n > 0)
 #       pngs <- c(pngs, rep("", extra))
-# 
+#
 #    innerTables <- paste("
 # <table cellpadding='0' cellspacing='0'>
 # <tbody>
@@ -138,11 +138,11 @@ plotTabSkeleton <- function(nRow, nCol, relList, cdo) {
 #    </td>
 # </tr>
 # </tbody>
-# </table>", 
+# </table>",
 #       sep=""
 #    )
 #    innerTables <- matrix(innerTables, nrow=nRow, ncol=nCol, byrow=TRUE)
-#    
+#
 #    outerTable <- paste("
 # <table border='0' cellpadding='0' cellspacing='0' align='center' id='plotTable' valign='center'>
 # <tbody>",
