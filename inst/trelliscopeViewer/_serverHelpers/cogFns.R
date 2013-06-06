@@ -20,7 +20,7 @@ cogNames <- function(x) {
    if(inherits(x, "mongoCogConn")) {
       names(x$ex)
    } else {
-      names(x)            
+      names(x)
    }
 }
 
@@ -42,7 +42,7 @@ as.data.frame(tmp, stringsAsFactors=FALSE)
 }
 
 mongoCogEx <- function(mongoConn, NS) {
-   
+
 }
 
 mongoCog2DF <- function(x) {

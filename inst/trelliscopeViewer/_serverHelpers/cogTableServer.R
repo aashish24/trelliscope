@@ -4,9 +4,9 @@ cogTableBodyHTML <- function(data, nr) {
    # browser()
    nc <- ncol(data)
    if(nc == 0) {
-      return(NULL)      
+      return(NULL)
    } else if(nrow(data) == 0) {
-      tDataString <- matrix(nrow=nr, ncol=nc, data="<td>&nbsp;</td>")   
+      tDataString <- matrix(nrow=nr, ncol=nc, data="<td>&nbsp;</td>")
    } else {
       tDataString <- matrix(sapply(seq_len(nc), function(i) {
          if(inherits(data[[i]], c("integer", "numeric"))) {
@@ -23,7 +23,7 @@ cogTableBodyHTML <- function(data, nr) {
          nn <- nr - rnr
          tDataString <- rbind(tDataString, matrix(nrow=nn, ncol=nc))
          tDataString[(rnr + 1):nr, 1:nc] <- "<td>&nbsp;</td>"
-      }      
+      }
    }
    tDataString <- paste(paste(t(cbind("<tr>", tDataString, "</tr>"))), collapse="")
    HTML(tDataString)
@@ -33,19 +33,19 @@ cogTableBodyHTML <- function(data, nr) {
 cogTableHead <- function(data) {
    dnames <- names(data)
    dindex <- seq_along(dnames)
-   
+
    tHeadString <- paste(
       "<tr role='row' id='cogColumnSortInput' class='columnSortInput'>",
       paste(
-         "<th align='center' class='sorting' role='columnheader' 'tabindex='", 
-         dindex - 1, 
-         "' aria-controls='cogTable' rowspan='1' colspan='1' aria-label=', ", 
-         dnames, 
-         ": activate to sort'>", 
-         dnames, 
-         "<i class='icon-minus'></th>", 
+         "<th align='center' class='sorting' role='columnheader' 'tabindex='",
+         dindex - 1,
+         "' aria-controls='cogTable' rowspan='1' colspan='1' aria-label=', ",
+         dnames,
+         ": activate to sort'>",
+         dnames,
+         "<i class='icon-minus'></th>",
          sep="", collapse=""),
-      "</tr>", 
+      "</tr>",
       sep=""
    )
    HTML(tHeadString)
@@ -80,7 +80,7 @@ makeFootBar <- function(x, selected=NULL) {
    dat$selected <- dat$x %in% selected
    delta <- 0.5
    xyplot(order ~ Freq,
-      data=dat, 
+      data=dat,
       panel=function(x, y, ...) {
          for(i in seq_along(x)) {
             panel.rect(0, y[i] - delta, x[i], y[i] + delta, border="white", col=ifelse(dat$selected[i], "#7080D7", "darkgray"))
@@ -99,7 +99,7 @@ makeFootBar <- function(x, selected=NULL) {
 # makeFootHist(iris[,1], 5.2, 7.3)
 # makeFootHist(iris[,1], 4.7, NULL)
 # makeFootHist(iris[,1], NULL, 6.8)
-# 
+#
 # set.seed(234)
 # x <- iris[sample(1:150, 100, replace=TRUE),5]
 # makeFootBar(x)
@@ -153,7 +153,7 @@ makeFootHist <- function(x, rmin=NULL, rmax=NULL) {
          rmin <- min(x, na.rm=TRUE) - rng
 
       sMin <- which(hst$mids + delta > rmin & hst$mids - delta < rmin)
-      sMax <- which(hst$mids + delta > rmax & hst$mids - delta < rmax)      
+      sMax <- which(hst$mids + delta > rmax & hst$mids - delta < rmax)
    }
 
    xyplot(hst$density ~ hst$mids,
@@ -164,12 +164,12 @@ makeFootHist <- function(x, rmin=NULL, rmax=NULL) {
          if(length(sMin) > 0) {
             panel.rect(x[sMin] - delta, 0, rmin, y[sMin], col="darkgray", border=NA)
             panel.rect(rmin, 0, x[sMin] + delta, y[sMin], col="#7080D7", border=NA)
-            panel.rect(x[sMin] - delta, 0, x[sMin] + delta, y[sMin], col=NA, border="white")            
+            panel.rect(x[sMin] - delta, 0, x[sMin] + delta, y[sMin], col=NA, border="white")
          }
          if(length(sMax) > 0) {
             panel.rect(x[sMax] - delta, 0, rmax, y[sMax], col="#7080D7", border=NA)
             panel.rect(rmax, 0, x[sMax] + delta, y[sMax], col="darkgray", border=NA)
-            panel.rect(x[sMax] - delta, 0, x[sMax] + delta, y[sMax], col=NA, border="white")            
+            panel.rect(x[sMax] - delta, 0, x[sMax] + delta, y[sMax], col=NA, border="white")
          }
       },
       ylim=c(0, max(hst$density)),

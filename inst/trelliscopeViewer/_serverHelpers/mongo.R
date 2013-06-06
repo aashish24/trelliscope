@@ -9,7 +9,7 @@ mongoCollName <- function(coll, ...) {
 # clear out collections
 mongoClear <- function(conn, group, name) {
    mongoConn <- vdbMongoInit(conn)
-   
+
    mongoPanel <- mongoCollName(conn$vdbName, group, name, "panel")
    mongoCog <- mongoCollName(conn$vdbName, group, name, "cog")
 
@@ -34,7 +34,7 @@ vdbMongoInit <- function(conn) {
       conn$mongoConn$mongoHost, conn$mongoConn$mongoName, conn$mongoConn$mongoUser, conn$mongoConn$mongoPass
    ))))
       stop("mongodb paramaters not set in conn")
-   
+
    suppressMessages(require(caTools)) # for base64encode
    # rmongodb uses Rprintf and suppressMessages doesn't work
    tmpcapt <- suppressMessages(capture.output(require(rmongodb)))
@@ -69,6 +69,6 @@ mongoEncodePlot <- function(plotLoc, key, remove=TRUE) {
    mongo.bson.buffer.append(buf, "plot", encodePNG(plotLoc))
    # mongo.insert(mongoConn, mongoNS, list(plot=b64))
    file.remove(plotLoc)
-   mongo.bson.from.buffer(buf)   
+   mongo.bson.from.buffer(buf)
 }
 

@@ -18,7 +18,7 @@ getD3HistData <- function(dat, col) {
 renderTimeSeries <- function(expr, env=parent.frame(), quoted=FALSE) {
   # Convert the expression + environment into a function
   func <- exprToFunction(expr, env, quoted)
-  
+
   function() {
     val <- func()
     list(start = tsp(val)[1],
@@ -30,7 +30,7 @@ renderTimeSeries <- function(expr, env=parent.frame(), quoted=FALSE) {
 
 makeBivarJSON <- function(x, y, xlab="x", ylab="y", shape=460/660, xbin=50) {
    dat <- hexbin(x, y, shape=shape, xbin=xbin)
-   
+
    # make a scatterplot of less than 2500 points
    type <- ifelse(length(x) < 5000, "scatter", "hex")
 
@@ -84,16 +84,16 @@ makeBivarJSON <- function(x, y, xlab="x", ylab="y", shape=460/660, xbin=50) {
 
       dataStr <- paste("\"data\": [", paste(apply(as.matrix(dd), 1, function(x) paste("{\"x\":", x[1], ",\"y\":", x[2], ",\"r\":", x[3], "}", sep="")), collapse=","), "]", sep="")
 
-      paste("{\"type\":\"", type, "\", \"shape\":", shape, ", \"xlab\":\"", xlab, "\", \"ylab\":\"", ylab, "\", \"hexx\": [", 
-         paste(hexC$x, collapse=","), 
+      paste("{\"type\":\"", type, "\", \"shape\":", shape, ", \"xlab\":\"", xlab, "\", \"ylab\":\"", ylab, "\", \"hexx\": [",
+         paste(hexC$x, collapse=","),
          "], \"hexy\":[",
-         paste(hexC$y, collapse=","), 
+         paste(hexC$y, collapse=","),
          "], ", dataStr, "}", sep=""
       )
    } else {
       dd <- data.frame(x=x, y=y)
       dataStr <- paste("\"data\": [", paste(apply(as.matrix(dd), 1, function(x) paste("{\"x\":", x[1], ",\"y\":", x[2], "}", sep="")), collapse=","), "]", sep="")
-      
+
       paste("{\"type\":\"", type, "\", \"xlab\":\"", xlab, "\", \"ylab\":\"", ylab, "\", ", dataStr, "}", sep=""
       )
    }

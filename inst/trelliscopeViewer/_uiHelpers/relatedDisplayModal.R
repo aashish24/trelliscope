@@ -27,7 +27,7 @@ relatedDisplayTable <- function(relatedDisplays) {
       HTML("No related displays")
    } else {
       header <- paste("<th>", c("Group", "Name", "Description", "Select"), "</th>", sep="", collapse="")
-      
+
       c1 <- paste("<td>", relatedDisplays$group, "</td>", sep="")
       c2 <- paste("<td>", relatedDisplays$name, "</td>", sep="")
       c3 <- paste("<td>", relatedDisplays$desc, "</td>", sep="")

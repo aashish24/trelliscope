@@ -29,9 +29,9 @@ d3histModal <- function() {
          style="display:none"
       ),
       textOutput("histRange"),
-      div(class="modal-footer", 
+      div(class="modal-footer",
          div(id="d3histRange"),
-         tags$p(span(class="label label-info", "Note:"), " clicking 'Update' will reset all other filters.    ", 
+         tags$p(span(class="label label-info", "Note:"), " clicking 'Update' will reset all other filters.    ",
             tags$a(class="btn", "data-dismiss"="modal", "Close"),
             tags$a(class="btn btn-primary", id="d3histSubmit", "Update")
          )
@@ -63,7 +63,7 @@ d3bivarModal <- function() {
       # button to update selected range
       # hidden div to hold json for plot
       div(id="d3bivarPlotDat", class="shiny-d3bivarDat-output", style="display:none"),
-      # hidden input for selected columns and 
+      # hidden input for selected columns and
       div(
          textInput("bivarColumns", "columns", ""),
          numericInput("bivarMinX", "Lower x", 0),
@@ -73,9 +73,9 @@ d3bivarModal <- function() {
          style="display:none"
       ),
       textOutput("bivarRange"),
-      div(class="modal-footer", 
+      div(class="modal-footer",
          div(id="d3bivarRange"),
-         tags$p(span(class="label label-info", "Note:"), " clicking 'Update' will reset all other filters.    ", 
+         tags$p(span(class="label label-info", "Note:"), " clicking 'Update' will reset all other filters.    ",
             tags$a(class="btn", "data-dismiss"="modal", "Close"),
             tags$a(class="btn btn-primary", id="d3bivarSubmit", "Update")
          )
