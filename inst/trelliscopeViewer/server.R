@@ -81,6 +81,8 @@ shinyServer(function(input, output) {
       }
       tags$a(class='brand', txt)
    })
+
+   # output options changes the default of "suspendWhenHidden=TRUE" to always execute even if it's hidden
    outputOptions(output, 'displayNameHeader', suspendWhenHidden=FALSE)
 
    ### holds the data in "object.Rdata" for the current display
