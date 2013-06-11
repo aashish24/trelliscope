@@ -1,13 +1,13 @@
 # if lims is of class "trsLims" then update the plot limits
 # otherwise, we need to go through and compute limits
-# if both x and y are free, 
+# if both x and y are free,
 
 # TODO: make a makeDisplayTest function that applies to an example of the data
 
 #' Create a trelliscope Display
-#' 
+#'
 #' Create a trelliscope display and add it to a visualization database (VDB)
-#' 
+#'
 #' @param dat data of class "localDiv", "rhData", "trellis", "ggplot", or "expression"
 #' @param name the name of the display (no spaces or special characters)
 #' @param group the group the display belongs to (displays are organized into groups).  Defaults to "common"
@@ -25,11 +25,11 @@
 #' @param parallel for storage="local" create plots in parallel (currently not working)
 #' @param mapred parameters to be passed to the Rhipe mapreduce job (see \code{\link{rhwatch}})
 #' @param calledFromRhipe don't mess with this
-#' 
+#'
 #' @details there are a lot of details... see the documentation: \url{http://hafen.github.io/trelliscope}
-#' 
+#'
 #' Many of the parameters are optional or have defaults.
-#' 
+#'
 #' Storage options for plots:
 #' \describe{
 #'    \item{local:}{plots for each of the panels will be stored in the displays directory of the VDB directory}
@@ -37,76 +37,76 @@
 #'    \item{hdfs:}{plots will be stored in a mapfile on HDFS - can only be done with data of class "rhSplit"}
 #'    \item{localData:}{instead of storing plots, data, plotFn, etc. will be stored locally and plotFn will be applied to the data on-the-fly in the viewer}
 #'    \item{hdfsData:}{plotFn is applied on-the-fly to data retrieved from the original data on HDFS (must be a mapfile) - can only be done with data of class "rhDiv"}
-#' } 
+#' }
 #' There are so many options because there are several tradeoffs, described in the vignette.
-#' 
+#'
 #' @author Ryan Hafen
-#' 
+#'
 #' @seealso \code{\link{prepanel}}, \code{\link{setLims}}, \code{\link{inputVars}}, \code{\link{divide}}
-#' 
+#'
 #' @examples
 #' # see docs
-#' 
+#'
 #' @export
 makeDisplay <- function(
    data,
    name,
-   group = "common",
-   desc = "",
-   plotDim = list(height=NULL, width=NULL, aspect=NULL, res=NULL),
-   plotFn = NULL, # function to be applied to each split,
-   lims = list(x="free", y="free", preFn=NULL),
-   cogFn = NULL,
-   inputVars = NULL, 
-   conn = getOption("vdbConn"),
-   storage = NULL,
-   cogStorage = NULL,
-   subDirSize = 1000,
-   subDirN = 0, # number of subdirectories - this overrides subDirSize
-   verbose = TRUE,
-   parallel = FALSE,
-   rhFail = TRUE,
-   mapred = NULL,
+   group           = "common",
+   desc            = "",
+   plotDim         = list(height=NULL, width=NULL, aspect=NULL, res=NULL),
+   plotFn          = NULL, # function to be applied to each split,
+   lims            = list(x="free", y="free", preFn=NULL),
+   cogFn           = NULL,
+   inputVars       = NULL,
+   conn            = getOption("vdbConn"),
+   storage         = NULL,
+   cogStorage      = NULL,
+   subDirSize      = 1000,
+   subDirN         = 0, # number of subdirectories - this overrides subDirSize
+   verbose         = TRUE,
+   parallel        = FALSE,
+   rhFail          = TRUE,
+   mapred          = NULL,
    calledFromRhipe = FALSE # don't mess with this
 ) {
-   
+
    # TODO: make sure plotFn is specified (maybe test it on a subset)
    # TODO: if it's not class localDiv or rhSplit, then error out immediately
-   
+
    isSinglePlot <- inherits(data, "trellis") || inherits(data, "ggplot") || inherits(data, "expression")
    plotEx <- NULL
-   
+
    # validate data (if it is NULL, stop)
    if(inherits(data, "localDiv")) {
       if(length(data) == 0)
          stop("Data is empty")
    }
-   
+
    if(!calledFromRhipe) {
       if(!isSinglePlot) {
-         plotEx <- trsValidatePlotFn(plotFn, data, verbose)         
+         plotEx <- trsValidatePlotFn(plotFn, data, verbose)
       }
-      
+
       plotDim <- trsValidatePlotDim(plotDim, data, plotFn, verbose)
       storage <- trsValidateStorage(storage, conn, class(data))
       inputVars <- trsValidateInputs(inputVars)
       cogStorage <- trsValidateCogStorage(cogStorage, conn)
-      
+
       if(storage=="mongo" || cogStorage=="mongo") {
          if(verbose)
             message("* Clearing out old mongodb collections, if any")
-         mongoClear(conn, group, name)         
+         mongoClear(conn, group, name)
       }
-      
+
       cogEx <- trsValidateCogFn(data, cogFn, verbose)
-      
+
       vdbPrefix <- trsValidatePrefix(conn)
-      displayPrefix <- trsGetDisplayPrefix(conn, group, name)   
-      
+      displayPrefix <- trsGetDisplayPrefix(conn, group, name)
+
       trsValidateDisplayPrefix(displayPrefix)
       if(is.null(desc) || is.na(desc))
          desc <- ""
-         
+
       hdfsPrefix <- NULL
       if(inherits(data, "rhData")) {
          hdfsPrefix <- conn$hadoopConn$hdfsPrefix
@@ -119,24 +119,24 @@ makeDisplay <- function(
    } else {
       # we should be here if we have been called from RHIPE
       if(storage=="local") {
-         displayPrefix <- trsGetDisplayPrefix(conn, group, name)         
+         displayPrefix <- trsGetDisplayPrefix(conn, group, name)
       } else {
-         displayPrefix <- tempdir()         
+         displayPrefix <- tempdir()
       }
    }
-   
+
    if(storage=="mongo" || cogStorage=="mongo")
       tmpcapt <- suppressMessages(capture.output(require(rmongodb)))
-   
+
    dataSig <- NA
-   
+
    if(!isSinglePlot && !calledFromRhipe) {
       # if the user specified limits, use them
       # if not, we need to call prepanel on the data
-      if(is.null(lims)) { # 
+      if(is.null(lims)) { #
          if(verbose)
             message("* Limits not supplied.  Applying plotFn as is.")
-         
+
          # lims <- list(x=list(type="free"), y=list(type="free"))
          # lims$preFnIsTrellis <- FALSE
          # xLimType <- "free"
@@ -153,16 +153,16 @@ makeDisplay <- function(
          yLimType <- lims$y
          if(is.null(xLimType)) xLimType <- "free"
          if(is.null(yLimType)) yLimType <- "free"
-         
-         lims <- list(x=list(type="free"), y=list(type="free"))         
-         
+
+         lims <- list(x=list(type="free"), y=list(type="free"))
+
          # # huh? plotEx is plotFn, not preFn
          # if(inherits(plotEx, "trellis")) {
          #    lims$preFnIsTrellis <- TRUE
          # } else {
          #    lims$preFnIsTrellis <- FALSE
          # }
-         
+
          # browser()
          # if both are free, we don't need to do anything
          # this will avoid an extra Rhipe job if data is "rhData"
@@ -189,12 +189,12 @@ makeDisplay <- function(
       xLimType <- lims$x$type
       yLimType <- lims$y$type
    }
-   
+
    # if it's localData, just store the data, plotFn, etc.
    if(storage == "localData" || (storage=="hdfsData" && calledFromRhipe)) {
       if(verbose)
          message("* Storing data since storage='", storage, "'.  Plots will be created on-demand in the viewer.")
-      
+
       # this happens in the plotting for the other data, so need to do it here
       splitKeys <- getKeys(data) # sapply(seq_along(data), function(x) data[[x]]$splitKey)
       # TODO: check for non-unique splitKeys
@@ -210,7 +210,7 @@ makeDisplay <- function(
             save(data, file=localDataPath)
 
          # save(localDataExtra, file=file.path(displayPrefix, "localDataExtra.Rdata"))
-         
+
          nPanels <- length(data)
       }
    } else {
@@ -221,42 +221,42 @@ makeDisplay <- function(
          if(verbose)
             message("* -- Plotting trellis / ggplot / base R plot object.")
          # browser()
-         
+
          xLimType <- NULL
          yLimType <- NULL
          lims <- NULL
-         
+
          dir.create(file.path(displayPrefix, "png"))
-         
+
          pngPrefix <- file.path(displayPrefix, "png", paste(name, "_%04d", ".png", sep=""))
-         
+
          trsMakePNG(dat=data, file=pngPrefix, width=plotDim$width, height=plotDim$height, res=plotDim$res, xLimType=xLimType, yLimType=yLimType, lims=lims)
-         
+
          plotLocs <- list.files(file.path(displayPrefix, "png"), full.names=TRUE)
          splitKeys <- list.files(file.path(displayPrefix, "png"))
          splitKeys <- gsub("(.*)\\.png$", "\\1", splitKeys)
-         
+
          nPanels <- length(splitKeys)
-         
+
          if(storage == "mongo") {
             plotRes <- lapply(seq_along(plotLocs), function(x) mongoEncodePlot(plotLocs[x], splitKeys[x]))
             mongoConn <- vdbMongoInit(conn)
             mongoNS <- mongoCollName(conn$vdbName, group, name, "panel")
-            
+
             mongo.insert.batch(mongoConn, mongoNS, plotRes)
             mongo.disconnect(mongoConn)
          }
       }
-      
+
       # if object is of class "localDiv", it is plotted
       # (note: this is called within each rhipe map task if data is of class rhData, unless storage is hdfsData)
       if(inherits(data, "localDiv") && storage != "hdfsData") {
          dataSig <- digest(data)
-         
+
          nPanels <- length(data)
-         
+
          splitKeys <- getKeys(data) # sapply(seq_along(data), function(x) data[[x]]$splitKey)
-         
+
          # handle subdirectories if necessary:
          # if number of subdirectories (subDirN) wasn't provided
          # then we need to compute it based on subDirSize
@@ -275,9 +275,9 @@ makeDisplay <- function(
          } else {
             subDirs <- rep("", nPanels)
          }
-         
+
          pngPrefix <- file.path(displayPrefix, "png")
-         
+
          if(storage == "mongo") {
             # remove old plots...
             # TODO: maybe make this more safe?
@@ -303,18 +303,18 @@ makeDisplay <- function(
          #    cl <- makeCluster(detectCores()))
          #    clusterEvalQ(cl, library(lattice))
          #    # maybe use clusterMap
-         
+
          if(verbose) cat("") # avoid \r below deleting all previous messages
          plotRes <- lapply(seq_len(nPanels), function(i) {
             if(verbose)
                message(paste("\r* -- Plotting panel ", i, " of ", nPanels, sep=""), appendLF=FALSE)
-            
+
             trsMakePNG(dat=data[[i]], plotFn=plotFn, file=plotLocs[i], width=plotDim$width, height=plotDim$height, res=plotDim$res, xLimType=xLimType, yLimType=yLimType, lims=lims)
-                        
+
             if(storage == "mongo") {
                return(mongoEncodePlot(plotLocs[i], names(data)[i]))
             }
-            
+
             if(storage == "hdfs") {
                rhcollect(names(data)[i], encodePNG(plotLocs[i]))
             }
@@ -329,27 +329,27 @@ makeDisplay <- function(
             mongo.disconnect(mongoConn)
          }
       }
-      
+
       if(inherits(data, "rhData")) {
          # run a RHIPE job that calls this function on each k/v pair where each is turned into a localDiv with the key being the splitKey and the value being the data
          # unless a different transformation is applied
 
          # get a hash of the listing of the data
          dataSig <- digest(rhls(data$loc))
-                  
+
          # a <- rhread(data$loc)
          # k <- a[[1]][[1]]
          # r <- a[[1]][[2]]
-         
+
          map <- rhmap({
             res <- try({
                d <- list(r)
                names(d) <- k
                class(d) <- c("localDiv", "list")
                attr(d, "divBy") <- data$divBy
-               
+
                # d <- trelliscope:::trsRhKeyValTrans(rhKeyTrans(k), rhValTrans(r))
-               
+
                p <- makeDisplay(
                   name=name,
                   group=group,
@@ -369,7 +369,7 @@ makeDisplay <- function(
                   verbose=FALSE
                )
             }, silent=TRUE)
-            
+
             if(inherits(res, "try-error")) {
                if(rhFail) # by default, we want the job to stop (but there are cases where we know some will fail and we want it to keep going)
                   stop(geterrmessage())
@@ -379,7 +379,7 @@ makeDisplay <- function(
                rhcollect("VDB___count", length(d))
             }
          })
-         
+
          # rbind the results
          reduce <- expression(
             pre = {
@@ -412,7 +412,7 @@ makeDisplay <- function(
                   rhcollect("VDB___error", error)
             }
          )
-         
+
          # rhmrLocal(map=map, ifolder=irisRhSplit$example)
 
          # need to remove sourceJobData and mapfile from data (or we get the error: 1(6): already exists in database: rexp.proto)
@@ -437,7 +437,7 @@ makeDisplay <- function(
             # rhValTrans = rhValTrans,
             rhFail     = rhFail
          )
-         
+
          # if the package isn't loaded, need to pass other functions as well
          # (assuming that they are defined in the global environment instead)
          # (debugging and updating the package is a lot easier when just
@@ -459,7 +459,7 @@ makeDisplay <- function(
                trsValidatePrefix = trsValidatePrefix
             ))
          }
-         
+
          if("package:trelliscope" %in% search()) {
             setup <- expression({
                suppressMessages(require(datadr))
@@ -475,7 +475,7 @@ makeDisplay <- function(
                # suppressMessages(require(data.table))
             })
          }
-         
+
          # if plotFn uses any data in the environment, pass that on too
          globalVars <- trsFindGlobals(plotFn)
          # only look for objects the user has created
@@ -485,21 +485,21 @@ makeDisplay <- function(
             vars <- vars[!sapply(vars, function(x) length(x) == 1 && x=="notfound!")]
             parList <- c(parList, vars)
          }
-         
+
          # TODO: if 'mongo', can probably leave it as tempfolder (and then rhdel at the end)
          # ofolder <- Rhipe:::mkdHDFSTempFolder(file=name)
          ofolder <- paste(hdfsPrefix, "/", name, sep="")
-         
+
          if(ofolder==data$loc)
             stop("display output cannot be the same as the input.  Consider putting all VDB displays in a VDB subdirectory on HDFS")
-         
+
          ofolderExists <- try(rhls(ofolder), silent=TRUE)
          if(inherits(ofolderExists, "try-error")) {
             ans <- readline(paste("The output HDFS directory ", ofolder, " does not exist.  Create? (y = yes) ", sep=""))
          	if(!tolower(substr(ans, 1, 1)) == "y")
          	   stop()
          }
-         
+
          # a <- rhread(data$loc)
          # k <- a[[1]][[1]]
          # r <- a[[1]][[2]]
@@ -518,17 +518,17 @@ makeDisplay <- function(
             # mon.sec=0,
             readback=FALSE
          ) # ))
-         
+
          # id <- gsub(".*jobid=(job_.*)", "\\1", rhJob[[1]]$tracking)
          # rhRes <- trsRhStatus(id)
-         
+
          if(verbose)
             message(paste("* Output written to a map file, ", ofolder, ".  Reading in cognostics output from this file...", sep=""))
-         
+
          if(storage=="hdfs") {
             a <- suppressMessages(rhmapfile(ofolder))
-            cogDat <- suppressMessages(a[["VDB___cog"]])               
-            nPanels <- suppressMessages(a[["VDB___count"]])            
+            cogDat <- suppressMessages(a[["VDB___cog"]])
+            nPanels <- suppressMessages(a[["VDB___count"]])
             # error <- suppressMessages(a[["VDB___error"]])
             error <- NULL
          } else { # if plots are not stored in hdfs, we can read in all output
@@ -540,23 +540,23 @@ makeDisplay <- function(
             if(any(outNames=="error"))
                error <- tmp[[which(outNames=="VDB___error")]][[2]]
          }
-         
+
          # TODO: make easy way to get errors
          if(length(error) > 0)
             warning("There were errors - see...")
-         
+
          # rhdel(ofolder)
 
          # nPanels <- as.integer(rhRes$counters$`Map-Reduce Framework`["Map input records"]) # not good because further splits can occur
       }
    }
-   
+
    if(!inherits(data, "rhData")) {
       # generate cogDat
-      
+
       if(verbose)
          message("* Computing cognostics...")
-         
+
       cogDat <- getCognostics(data, cogFn, splitKeys)
       if(cogStorage=="mongo") {
          cogDatBson <- lapply(cogDat, mongo.bson.from.list)
@@ -569,48 +569,48 @@ makeDisplay <- function(
          }))
       }
    }
-   
+
    # # example of how to query a mongo plot and display it
    # a <- getMongoPlot(mongoConn, mongoNS, data[[1]]$splitKey)
    # aa <- tempfile(fileext=".html")
    # cat(paste("<img src=\"", a, "\">"), file=aa)
    # browseURL(aa)
-   
+
    if(calledFromRhipe) {
       return(list(cog=cogDat))
    } else {
       # write cognostics, inputs, and unique keys to disk and update displayList
-      
+
       # TODO: aspect ratio
       if(verbose)
          message("* Updating displayList...")
-         
+
       modTime <- Sys.time()
-      
-      keys <- cogDat$panelKey         
+
+      keys <- cogDat$panelKey
       keySig <- digest(sort(keys))
-      
+
       trsUpdateDisplayList(
-         vdbPrefix=vdbPrefix, 
-         name=name, 
-         group=group, 
-         desc=desc, 
-         n=nPanels, 
-         storage=storage, 
+         vdbPrefix=vdbPrefix,
+         name=name,
+         group=group,
+         desc=desc,
+         n=nPanels,
+         storage=storage,
          cogStorage=cogStorage,
-         hdfsPrefix=hdfsPrefix, 
-         width=plotDim$width, 
-         height=plotDim$height, 
-         aspect=plotDim$aspect, 
-         updated=modTime, 
+         hdfsPrefix=hdfsPrefix,
+         width=plotDim$width,
+         height=plotDim$height,
+         aspect=plotDim$aspect,
+         updated=modTime,
          keySig=keySig,
          dataSig=dataSig,
          subDirN=subDirN
       )
       # keySig is a representation of the collection of keys, used to identify other plots with the same set of keys
-      
+
       trsUpdateDisplayListJson(vdbPrefix)
-      
+
       # # write input variables, if specified
       # if(!is.null(inputVars)) {
       #    message("Writing input variables...")
@@ -620,29 +620,29 @@ makeDisplay <- function(
 
       if(verbose)
          message("* Storing display object...")
-      
+
       hdfsDataSource <- NULL
       if(storage=="hdfsData")
          hdfsDataSource <- list(loc=data$loc, type=data$type, class=class(data))
-      
+
       displayObj <- list(
-         vdbPrefix=vdbPrefix, 
-         name=name, 
-         group=group, 
-         desc=desc, 
-         n=nPanels, 
-         storage=storage, 
+         vdbPrefix=vdbPrefix,
+         name=name,
+         group=group,
+         desc=desc,
+         n=nPanels,
+         storage=storage,
          cogStorage=cogStorage,
          cogDesc=getCogDesc(cogEx),
-         hdfsPrefix=hdfsPrefix, 
-         updated=modTime, 
+         hdfsPrefix=hdfsPrefix,
+         updated=modTime,
          keySig=keySig,
          dataSig=dataSig,
          subDirN=subDirN,
          plotFn=plotFn,
          cogFn=cogFn,
          inputVars=inputVars,
-         plotDim=plotDim, 
+         plotDim=plotDim,
          lims=lims,
          xLimType=xLimType,
          yLimType=yLimType,
@@ -651,9 +651,9 @@ makeDisplay <- function(
          # rhKeyTrans=rhKeyTrans,
          # rhValTrans=rhValTrans
       )
-      
+
       save(displayObj, file=file.path(displayPrefix, "object.Rdata"))
-      
+
       # write panel keys
       # (this is used when linking to other displays)
       # (need the plut keys)
@@ -661,7 +661,7 @@ makeDisplay <- function(
          message("* Writing panel keys...")
       # keyCols <- which(names(cogDat) %in% c("panelKey", "subDir"))
       save(keys, file=file.path(displayPrefix, "panelKeys.Rdata"))
-      
+
       if(verbose)
          message("* Writing cognostics...")
       if(cogStorage=="local") {
@@ -674,7 +674,7 @@ makeDisplay <- function(
       } else {
          # cogStorage=="mongo"
          # we've already put the data in, now we just need to index it
-         
+
          mongoConn <- vdbMongoInit(conn)
          mongoNS <- mongoCollName(conn$vdbName, group, name, "cog")
          cogNames <- names(cogEx)
@@ -691,22 +691,22 @@ makeDisplay <- function(
          }
          mongo.disconnect(mongoConn)
       }
-      
+
       # make thumbnail
       message("* Plotting thumbnail...")
       # thumbHeight <- conn$thumbHeight
       # if(is.null(thumbHeight))
       #    thumbHeight <- 120
       # curWidth <- thumbHeight * plotDim$width / plotDim$height
-      
+
       suppressMessages(trsMakePNG(dat=divExample(data), plotFn=plotFn, file=file.path(displayPrefix, "thumb.png"), width=plotDim$width, height=plotDim$height, res=plotDim$res, xLimType=xLimType, yLimType=yLimType, lims=lims))
-      
+
       if(storage != "mongo") {
          # browser()
          cogDesc <- getCogDesc(cogEx)
          writeCogJson(displayPrefix, group, name, cogDat, cogDesc, inputVars, plotDim$height, plotDim$width, nPanels)
       }
-      
+
       return(invisible(displayObj))
    }
 }

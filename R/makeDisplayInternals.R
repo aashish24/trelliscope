@@ -1,14 +1,14 @@
 listrbind  <- function(datlist, stringsAsFactors=FALSE) {
    nms <- as.list(names(datlist[[1]]))
 
-   a <- lapply(nms, function(x) data.frame(do.call(c, lapply(datlist, function(y) y[,x])), stringsAsFactors=stringsAsFactors))
-   res <- do.call(cbind, a)
+   a          <- lapply(nms, function(x) data.frame(do.call(c, lapply(datlist, function(y) y[,x])), stringsAsFactors=stringsAsFactors))
+   res        <- do.call(cbind, a)
    names(res) <- nms
    res
 }
 
 keyHash <- function(key, nbins) {
-   sum(strtoi(charToRaw(digest(key)), 16L)) %% nbins   
+   sum(strtoi(charToRaw(digest(key)), 16L)) %% nbins
 }
 
 ## internal
@@ -29,7 +29,7 @@ trsValidateCogFn <- function(dat, cogFn, verbose=FALSE) {
    ex <- getCognosticsSub(divExample(dat), cogFn, isCondDiv, names(dat)[1])
    if(!all(sapply(ex, function(x) inherits(x, "cog"))))
       stop("Each cognostic must have class 'cog' - please make sure you are specifying: var=cog(...)")
-   
+
    exdf <- cog2df(ex)
    if(nrow(exdf) > 1)
       stop("'cogFn' must return something that can be coerced into a 1-row data.frame")
@@ -42,36 +42,36 @@ trsValidateCogFn <- function(dat, cogFn, verbose=FALSE) {
 trsValidatePlotFn <- function(plotFn, dat, verbose=FALSE) {
    if(verbose)
       message("* Validating 'plotFn'...")
-   
+
    plotFn(divExample(dat))
 }
 
 ## internal
 trsValidatePlotDim <- function(plotDim, dat, plotFn, verbose=FALSE) {
-   # browser()
-   # TODO: 
-   # TODO: handle aspect ratio
-   width <- plotDim$width
+   #      browser()
+   #      TODO:
+   #      TODO: handle aspect ratio
+   width  <- plotDim$width
    height <- plotDim$height
-   res <- plotDim$res
+   res    <- plotDim$res
    aspect <- plotDim$aspect
-   
+
    if(verbose)
       message("* Validating plot dimensions...")
-   
+
    limsUpdated <- FALSE
    # # TODO: this lattice stuff isn't working...
    # p <- plotFn(divExample(dat))
    # if(inherits(p, "trellis")) {
-   #    if(is.null(p$layout)) 
+   #    if(is.null(p$layout))
    #       p$layout <- c(1, 1)
-   #    
+   #
    #    if(!p$aspect.fill) {
    #       if(verbose)
    #          message("... attempting to honor plot aspect ratio from plotFn()")
    #       browser()
    #       aspect <- p$aspect.ratio
-   # 
+   #
    #       tryRes <- try({
    #          if(is.null(width) && is.null(height)) {
    #             width <- 480
@@ -80,10 +80,10 @@ trsValidatePlotDim <- function(plotDim, dat, plotFn, verbose=FALSE) {
    #             height <- panelGetHeight(p, width)
    #          } else if(is.null(width) && !is.null(height)) {
    #             width <- panelGetWidth(p, height)
-   #          }            
+   #          }
    #       })
    #       if(inherits(tryRes, "try-error") && verbose) {
-   #          message("... attempt failed ... moving to plan B")            
+   #          message("... attempt failed ... moving to plan B")
    #       } else {
    #          limsUpdated <- TRUE
    #       }
@@ -92,7 +92,7 @@ trsValidatePlotDim <- function(plotDim, dat, plotFn, verbose=FALSE) {
    if(!limsUpdated) {
       if(!is.null(aspect)) {
          if(is.null(width) && is.null(height)) {
-            width <- 480
+            width  <- 480
             height <- width * aspect
          } else if(!is.null(width) && is.null(height)) {
             height <- width * aspect
@@ -106,12 +106,12 @@ trsValidatePlotDim <- function(plotDim, dat, plotFn, verbose=FALSE) {
             width <- 480
       }
    }
-   
+
    if(is.null(res))
       res <- 150
-      
-   width <- width * res / 72
-   height <- height * res / 72      
+
+   width  <- width * res / 72
+   height <- height * res / 72
 
    if(is.null(aspect))
       aspect <- height / width
@@ -134,9 +134,9 @@ trsValidateStorage <- function(storage, conn, datClass) {
    # if "storage" is not specified, use the conn default
    if(is.null(storage))
       if("rhData" %in% datClass) {
-         storage <- "hdfs"         
+         storage <- "hdfs"
       } else {
-         storage <- conn$defaultStorage         
+         storage <- conn$defaultStorage
       }
    # if that doesn't do it, default to "local"
    if(is.null(storage)) {
@@ -151,13 +151,13 @@ trsValidateStorage <- function(storage, conn, datClass) {
       message("* Changing storage to \"hdfs\" because this is the default option for dat of class \"rhData\"")
       storage <- "hdfs"
    }
-   
+
    if(storage=="localData" && (!"localDiv" %in% datClass))
       stop("When storage=='localData', dat must be of class 'localDiv'.")
-   
+
    if(!storage %in% c("local", "mongo", "hdfs", "localData", "hdfsData"))
       stop(paste("storage=\"", storage, "\" is not recognized.  Must be either 'local', 'localData', 'hdfs', or 'mongo'.\n", sep=""))
-      
+
    storage
 }
 
@@ -169,7 +169,7 @@ trsGetDisplayPrefix <- function(conn, group, name) {
    if(!file.exists(vdbPrefix)) {
       stop(paste("Directory ", vdbPrefix, " does not exist.  Please use vdbInit(", vdbPrefix, ") to initialize.", sep=""))
    }
-   
+
    file.path(vdbPrefix, "displays", group, name)
 }
 
@@ -179,8 +179,8 @@ trsValidatePrefix <- function(conn) {
 
    if(is.null(prefix))
       stop("Could not get vdb connection.  Must specify an option ...")
-      
-   if(!file.exists(prefix)) 
+
+   if(!file.exists(prefix))
       stop(paste("vdbPrefix", prefix, "does not exist"))
 
    prefix
@@ -206,11 +206,11 @@ trsUpdateDisplayList <- function(vdbPrefix, name, group, desc, n, storage, cogSt
 
    if(is.null(hdfsPrefix))
       hdfsPrefix <- NA
-   
+
    displayListPath <- file.path(vdbPrefix, "displays", "_displayList.Rdata")
-   
+
    displayListNames <- c("uid", "Group", "Name", "Description", "Pages", "Storage Mode", "Cognostics Storage Mode", "Storage Prefix", "Width (px)", "Height (px)", "Aspect Ratio", "Last Updated", "Key Signature", "Data Signature")
-   
+
    curPlot <- data.frame(
       uid=1,
       group=group,
@@ -229,7 +229,7 @@ trsUpdateDisplayList <- function(vdbPrefix, name, group, desc, n, storage, cogSt
       subDirN=subDirN,
       stringsAsFactors=FALSE
    )
-   
+
    if(!file.exists(displayListPath)) {
       displayList <- curPlot
    } else {
@@ -248,17 +248,17 @@ trsUpdateDisplayList <- function(vdbPrefix, name, group, desc, n, storage, cogSt
       file.path(vdbPrefix, "displays", displayList$group, displayList$name)
    )
    displayList <- displayList[existsInd,]
-   
+
    # sort it by group and name
    displayList <- displayList[order(displayList$group, displayList$name),]
-   
+
    save(displayList, displayListNames, file=displayListPath)
 }
 
 ## internal
 trsUpdateDisplayListJson <- function(vdbPrefix) {
    load(file.path(vdbPrefix, "displays", "_displayList.Rdata"))
-   
+
    string <- paste("{ \"displayList\": [\n",
       paste(
          paste("[\"", apply(displayList, 1, function(x) {
@@ -285,7 +285,7 @@ trsValidateInputs <- function(input) {
 }
 
 
-# # if there is an aspect ratio and layout specified, then 
+# # if there is an aspect ratio and layout specified, then
 # # set width or height accordingly to get rid of margins around plot
 # # assumes this is the same for all objects in the list
 # if(!p[[1]]$aspect.fill && !is.null(p[[1]]$layout) && p[[1]]$layout[1] !=0) {
@@ -308,7 +308,7 @@ trsMakePNG <- function(dat, plotFn=NULL, file, width, height, res, xLimType=NULL
    if(inherits(a, "try-error")) {
       # a <- suppressWarnings(try({
          suppressMessages(require(Cairo))
-         
+
          # width <- 480; height <- 480; res <- 150
          # file <- "/pic/people/hafe647/asdf.png"
          CairoPNG(file=file, width=width, height=height, dpi=res, pointsize=12*res/72)
@@ -316,12 +316,12 @@ trsMakePNG <- function(dat, plotFn=NULL, file, width, height, res, xLimType=NULL
          # dev.off()
 
       # }, silent=TRUE))
-      
+
       # if(inherits(a, "try-error")) {
       #    stop("Couldn't make a png!  Check your png device.")
       # }
    }
-   
+
    if(inherits(dat, "trellis") || inherits(dat, "ggplot")) { # single panel plot
       print(dat)
    } else if (inherits(dat, "expression")) { # expression (can't change limits)
@@ -329,15 +329,15 @@ trsMakePNG <- function(dat, plotFn=NULL, file, width, height, res, xLimType=NULL
    } else { # plot objects such as trellis or lattice
       tmp <- plotFn(dat)
       # browser()
-      
+
       if(!is.null(lims)) {
          if(inherits(tmp, "trellis")) {
             # if there are multiple panels inside of one plot, we can't do this
             if(!(inherits(tmp$x.limits, "list") || inherits(tmp$y.limits, "list"))) {
                plotXLim <- tmp$x.limits
-               plotYLim <- tmp$y.limits               
+               plotYLim <- tmp$y.limits
                curXLim <- trsCurXLim(lims, dat, plotXLim)
-               curYLim <- trsCurYLim(lims, dat, plotYLim)         
+               curYLim <- trsCurYLim(lims, dat, plotYLim)
 
                if(xLimType != "free")
                   tmp$x.limits <- curXLim
@@ -350,7 +350,7 @@ trsMakePNG <- function(dat, plotFn=NULL, file, width, height, res, xLimType=NULL
                plotXLim <- gglims[[1]]$x.range
                plotYLim <- gglims[[1]]$y.range
                curXLim <- trsCurXLim(lims, dat, plotXLim)
-               curYLim <- trsCurYLim(lims, dat, plotYLim)         
+               curYLim <- trsCurYLim(lims, dat, plotYLim)
 
                if(xLimType != "free")
                   suppressMessages(tmp <- tmp + xlim(curXLim))
@@ -359,7 +359,7 @@ trsMakePNG <- function(dat, plotFn=NULL, file, width, height, res, xLimType=NULL
             }
          }
       }
-      
+
       if(inherits(tmp, c("trellis"))) {
          print(tmp)
       }
@@ -388,7 +388,7 @@ trsRhKeyValTrans <- function(curKey, curVal) {
          dat[[j]]$splitKey <- paste(curKey, dat[[j]]$splitKey, sep="|")
    } else {
       if(inherits(curVal, "list")) {
-         # dat <- list(c(splitKey=curKey, curVal))         
+         # dat <- list(c(splitKey=curKey, curVal))
          dat <- curVal
          names(dat) <- curKey
       } else {
@@ -404,7 +404,7 @@ trsRhKeyValTrans <- function(curKey, curVal) {
 # internal
 nullAttributes <- function (e) {
    environment(e) <- NULL
-   
+
    for (i in seq_along(e)) attributes(e[[i]]) <- NULL
    eval(parse(text = deparse(e)))
 }

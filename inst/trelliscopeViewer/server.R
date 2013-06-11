@@ -44,6 +44,8 @@ load(file.path(vdbPrefix, "displays/_displayList.Rdata"))
 
 shinyServer(function(input, output) {
 
+
+
    conn <- getOption("vdbConn")
 
    # NOTE: reactive objects starting with "cd" is shorthand for "current display", meaning that it corresponds with the display currently being viewed
@@ -205,7 +207,7 @@ shinyServer(function(input, output) {
 
    ### index of filtered state of cognostics data frame for current display
    cdCogFilterIndex <- reactive({
-      cogDF <- cdCogObj()
+      cogDF    <- cdCogObj()
       colIndex <- cogTableColVisibility()
 
       if(!is.null(cogDF)) {
@@ -277,8 +279,10 @@ shinyServer(function(input, output) {
          if(!is.null(flt)) {
             logMsg("Updating cognostic filter index", verbose=verbose)
             n <- length(flt)
+
             # get index for filters that are NULL
             ind <- which(!sapply(flt[seq(3, n, by=3)], function(x) is.null(x) | x==""))
+
             # remove those ones
             if(length(ind) == 0) {
                flt <- NULL
@@ -329,11 +333,15 @@ shinyServer(function(input, output) {
          cogDF <- cogDF[filterIndex,, drop=FALSE]
          # cogDFOrd <- cogDFOrders()
          ordering <- input$cogColumnSortInput
+
          # this is a vector of -1 (desc), 0 (no sort), 1 (asc)
          orderIndex <- seq_len(cogNrow(cogDF))
+
          # browser()
+
          # need to know which columns are visible so we are sorting the right column
          colIndex <- cogTableColVisibility()
+
          # get sort order and sort the table
          if(!is.null(ordering)) {
             if(any(ordering != 0)) {
