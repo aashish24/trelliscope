@@ -42,7 +42,7 @@ if(is.null(verbose))
 
 load(file.path(vdbPrefix, "displays/_displayList.Rdata"))
 
-shinyServer(function(input, output) {
+shinyServer(function(input, output, session) {
 
 
 
@@ -654,6 +654,8 @@ shinyServer(function(input, output) {
 
    cat_once <- once(cat)
    output$panelLayoutPlots <- renderData({
+      print(session$clientData)
+
       cogDF <- curPageCogDF()
 
       if(!is.null(cogDF)) {
